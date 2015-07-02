@@ -44,6 +44,6 @@ interface Tx_Solr_PageDocumentPostProcessor {
 	 * @param tslib_fe $page the page object with information about page id or language
 	 * @return void
 	 */
-	public function postProcessPageDocument(Apache_Solr_Document $pageDocument, tslib_fe $page);
+	public function postProcessPageDocument(Apache_Solr_Document $pageDocument, \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController $page);
 
 }

@@ -31,7 +31,7 @@
  * @package TYPO3
  * @subpackage solr
  */
-class Tx_Solr_Report_SolrStatus implements tx_reports_StatusProvider {
+class Tx_Solr_Report_SolrStatus implements \TYPO3\CMS\Reports\StatusProviderInterface {
 
 	/**
 	 * Connection Manager
@@ -46,8 +46,9 @@ class Tx_Solr_Report_SolrStatus implements tx_reports_StatusProvider {
 	 * @see typo3/sysext/reports/interfaces/tx_reports_StatusProvider::getStatus()
 	 */
 	public function getStatus() {
-		$reports = array();
-		$this->connectionManager = t3lib_div::makeInstance('Tx_Solr_ConnectionManager');
+		$reports = [];
+		/** @var \Tx_Solr_ConnectionManager connectionManager */
+		$this->connectionManager = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\Tx_Solr_ConnectionManager::class);
 
 		$solrConnections = $this->connectionManager->getAllConfigurations();
 
@@ -61,12 +62,12 @@ class Tx_Solr_Report_SolrStatus implements tx_reports_StatusProvider {
 	/**
 	 * Checks whether a Solr server is available and provides some information.
 	 *
-	 * @param array Solr connection parameters
+	 * @param array $solrConnection Solr connection parameters
 	 * @return	tx_reports_reports_status_Status Status of the Solr connection
 	 */
 	protected function getConnectionStatus(array $solrConnection) {
 		$value    = 'Your site was unable to contact the Apache Solr server.';
-		$severity = tx_reports_reports_status_Status::ERROR;
+		$severity = \TYPO3\CMS\Reports\Status::ERROR;
 
 		$solr = $this->connectionManager->getConnection(
 			$solrConnection['solrHost'],
@@ -86,7 +87,7 @@ class Tx_Solr_Report_SolrStatus implements tx_reports_StatusProvider {
 		$pingQueryTime = $solr->ping();
 
 		if ($pingQueryTime !== FALSE) {
-			$severity = tx_reports_reports_status_Status::OK;
+			$severity = \TYPO3\CMS\Reports\Status::OK;
 			$value = 'Your site has contacted the Apache Solr server.';
 
 			$solrVersion = $this->formatSolrVersion($solr->getSolrServerVersion());
@@ -96,7 +97,7 @@ class Tx_Solr_Report_SolrStatus implements tx_reports_StatusProvider {
 			$message .= '<li>schema.xml: ' . $solr->getSchemaName() . '</li>';
 			$message .= '<li>solrconfig.xml: ' . $solr->getSolrconfigName() . '</li>';
 
-			$accessFilterPluginStatus = t3lib_div::makeInstance('Tx_Solr_Report_AccessFilterPluginInstalledStatus');
+			$accessFilterPluginStatus = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\Tx_Solr_Report_AccessFilterPluginInstalledStatus::class);
 			$accessFilterPluginVersion = $accessFilterPluginStatus->getInstalledPluginVersion($solr);
 
 			$message .= '<li>Access Filter Plugin: ' . $accessFilterPluginVersion . '</li>';
@@ -104,7 +105,7 @@ class Tx_Solr_Report_SolrStatus implements tx_reports_StatusProvider {
 
 		$message .= '</ul>';
 
-		return t3lib_div::makeInstance('tx_reports_reports_status_Status',
+		return \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Reports\Report\Status\Status::class,
 			'Apache Solr',
 			$value,
 			$message,

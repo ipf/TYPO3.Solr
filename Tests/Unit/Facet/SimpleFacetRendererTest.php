@@ -44,13 +44,13 @@ class Tx_Solr_Facet_SimpleFacetRendererTest extends Tx_Phpunit_TestCase {
 			'selectingSelectedFacetOptionRemovesFilter' => 0,
 			'renderingInstruction'
 		);
-		$parentPlugin       = t3lib_div::makeInstance('Tx_Solr_PiResults_Results');
-		$parentPlugin->cObj = t3lib_div::makeInstance('tslib_cObj');
+		$parentPlugin       = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\Tx_Solr_PiResults_Results::class);
+		$parentPlugin->cObj = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer::class);
 		$parentPlugin->main('', array());
-		$query = t3lib_div::makeInstance('Tx_Solr_Query', array('test'));
+		$query = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\Tx_Solr_Query::class, array('test'));
 
-		$this->facetRenderer = t3lib_div::makeInstance(
-			'Tx_Solr_Facet_SimpleFacetRenderer',
+		$this->facetRenderer = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
+			\Tx_Solr_Facet_SimpleFacetRenderer::class,
 			$facetName,
 			$facetOptions,
 			$facetConfiguration,

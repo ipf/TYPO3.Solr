@@ -47,14 +47,14 @@ class Tx_Solr_Query_Modifier_Faceting implements Tx_Solr_QueryModifier {
 	 */
 	public function __construct() {
 		$this->configuration = Tx_Solr_Util::getSolrConfiguration();
-		$this->facetRendererFactory = t3lib_div::makeInstance('Tx_Solr_Facet_FacetRendererFactory', $this->configuration['search.']['faceting.']['facets.']);
+		$this->facetRendererFactory = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\Tx_Solr_Facet_FacetRendererFactory::class, $this->configuration['search.']['faceting.']['facets.']);
 	}
 
 	/**
 	 * Modifies the given query and adds the parameters necessary for faceted
 	 * search.
 	 *
-	 * @param Tx_Solr_Query The query to modify
+	 * @param Tx_Solr_Query $query The query to modify
 	 * @return Tx_Solr_Query The modified query with faceting parameters
 	 */
 	public function modifyQuery(Tx_Solr_Query $query) {
@@ -137,7 +137,7 @@ class Tx_Solr_Query_Modifier_Faceting implements Tx_Solr_QueryModifier {
 	 *
 	 */
 	protected function addFacetQueryFilters() {
-		$resultParameters = t3lib_div::_GET('tx_solr');
+		$resultParameters = \TYPO3\CMS\Core\Utility\GeneralUtility::_GET('tx_solr');
 
 			// format for filter URL parameter:
 			// tx_solr[filter]=$facetName0:$facetValue0,$facetName1:$facetValue1,$facetName2:$facetValue2

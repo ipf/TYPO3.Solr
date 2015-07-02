@@ -4,10 +4,9 @@ if (!defined('TYPO3_MODE')) {
 }
 	// Adds JavaScript for page tree context menu to the BE
 if (is_object($TYPO3backend)) {
+	/** @var \TYPO3\CMS\Core\Page\PageRenderer $pageRenderer */
 	$pageRenderer = $GLOBALS['TBE_TEMPLATE']->getPageRenderer();
 
-	$javascriptPath = t3lib_extMgm::extRelPath('solr') . 'Resources/JavaScript/ContextMenu/';
+	$javascriptPath = \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extRelPath('solr') . 'Resources/JavaScript/ContextMenu/';
 	$pageRenderer->addJsFile($javascriptPath . 'initializesolrconnectionsclickmenuaction.js');
 }
-
-?>

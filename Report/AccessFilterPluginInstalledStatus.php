@@ -31,7 +31,7 @@
  * @package TYPO3
  * @subpackage solr
  */
-class Tx_Solr_Report_AccessFilterPluginInstalledStatus implements tx_reports_StatusProvider {
+class Tx_Solr_Report_AccessFilterPluginInstalledStatus implements \TYPO3\CMS\Reports\StatusProviderInterface {
 
 	/**
 	 * Solr Access Filter plugin version.
@@ -59,7 +59,7 @@ class Tx_Solr_Report_AccessFilterPluginInstalledStatus implements tx_reports_Sta
 	 */
 	public function getStatus() {
 		$reports = array();
-		$solrConnections = t3lib_div::makeInstance('Tx_Solr_ConnectionManager')->getAllConnections();
+		$solrConnections = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\Tx_Solr_ConnectionManager::class)->getAllConnections();
 
 		foreach ($solrConnections as $solrConnection) {
 			if ($solrConnection->ping()) {
@@ -79,7 +79,11 @@ class Tx_Solr_Report_AccessFilterPluginInstalledStatus implements tx_reports_Sta
 		return $reports;
 	}
 
-	protected function checkPluginInstallationStatus(Tx_Solr_SolrService $solrConnection) {
+	/**
+	 * @param Tx_Solr_SolrService $solrConnection
+	 * @return null|object
+	 */
+	protected function checkPluginInstallationStatus(\Tx_Solr_SolrService $solrConnection) {
 		$status = NULL;
 
 		if (!$this->isPluginInstalled($solrConnection)) {
@@ -100,17 +104,21 @@ class Tx_Solr_Report_AccessFilterPluginInstalledStatus implements tx_reports_Sta
 
 			$message .= $this->getPluginDownloadMessage();
 
-			$status = t3lib_div::makeInstance('tx_reports_reports_status_Status',
+			$status = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Reports\Status::class,
 				'Access Filter Plugin',
 				'Not Installed',
 				$message,
-				tx_reports_reports_status_Status::WARNING
+				\TYPO3\CMS\Reports\Status::WARNING
 			);
 		}
 
 		return $status;
 	}
 
+	/**
+	 * @param Tx_Solr_SolrService $solrConnection
+	 * @return null|object
+	 */
 	protected function checkPluginVersion(Tx_Solr_SolrService $solrConnection) {
 		$status = NULL;
 
@@ -134,11 +142,11 @@ class Tx_Solr_Report_AccessFilterPluginInstalledStatus implements tx_reports_Sta
 
 			$message .= $this->getPluginDownloadMessage();
 
-			$status = t3lib_div::makeInstance('tx_reports_reports_status_Status',
+			$status = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Reports\Status::class,
 				'Access Filter Plugin',
 				'Outdated',
 				$message,
-				tx_reports_reports_status_Status::WARNING
+				\TYPO3\CMS\Reports\Report\Status\Status::WARNING
 			);
 		}
 
@@ -149,7 +157,7 @@ class Tx_Solr_Report_AccessFilterPluginInstalledStatus implements tx_reports_Sta
 	 * Checks whether the Access Filter Query Parser Plugin is installed for
 	 * the given Solr server instance.
 	 *
-	 * @param Tx_Solr_SolrService Solr connection to check for the plugin.
+	 * @param Tx_Solr_SolrService $solrConnection Solr connection to check for the plugin.
 	 * @return boolean True if the plugin is installed, FALSE otherwise.
 	 */
 	protected function isPluginInstalled(Tx_Solr_SolrService $solrConnection) {
@@ -167,7 +175,7 @@ class Tx_Solr_Report_AccessFilterPluginInstalledStatus implements tx_reports_Sta
 	/**
 	 * Checks whether the installed plugin is current.
 	 *
-	 *  @param Tx_Solr_SolrService Solr connection to check for the plugin.
+	 *  @param Tx_Solr_SolrService $solrConnection Solr connection to check for the plugin.
 	 * @return boolean True if the plugin is outdated, FALSE if it meets the current version recommendation.
 	 */
 	protected function isPluginOutdated(Tx_Solr_SolrService $solrConnection) {
@@ -185,7 +193,7 @@ class Tx_Solr_Report_AccessFilterPluginInstalledStatus implements tx_reports_Sta
 	/**
 	 * Gets the version of the installed plugin.
 	 *
-	 * @param Tx_Solr_SolrService Solr connection to check for the plugin.
+	 * @param Tx_Solr_SolrService $solrConnection Solr connection to check for the plugin.
 	 * @return string The installed plugin's version number.
 	 */
 	public function getInstalledPluginVersion(Tx_Solr_SolrService $solrConnection) {

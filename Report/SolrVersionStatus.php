@@ -32,7 +32,7 @@
  * @package TYPO3
  * @subpackage solr
  */
-class Tx_Solr_Report_SolrVersionStatus implements tx_reports_StatusProvider {
+class Tx_Solr_Report_SolrVersionStatus implements \TYPO3\CMS\Reports\StatusProviderInterface {
 
 	/**
 	 * Required Solr version. The version that gets installed when using the
@@ -49,7 +49,7 @@ class Tx_Solr_Report_SolrVersionStatus implements tx_reports_StatusProvider {
 	 */
 	public function getStatus() {
 		$reports = array();
-		$solrConnections = t3lib_div::makeInstance('Tx_Solr_ConnectionManager')->getAllConnections();
+		$solrConnections = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\Tx_Solr_ConnectionManager::class)->getAllConnections();
 
 		foreach ($solrConnections as $solrConnection) {
 			if ($solrConnection->ping()) {
@@ -75,11 +75,11 @@ class Tx_Solr_Report_SolrVersionStatus implements tx_reports_StatusProvider {
 						. '<li><strong>Version: ' . $this->formatSolrVersion($solrVersion) . '</strong></li>
 						</ul>';
 
-					$status = t3lib_div::makeInstance('tx_reports_reports_status_Status',
+					$status = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Reports\Status::class,
 						'Apache Solr Version',
 						'Outdated, Unsupported',
 						$message,
-						tx_reports_reports_status_Status::ERROR
+						\TYPO3\CMS\Reports\Status::ERROR
 					);
 
 					$reports[] = $status;

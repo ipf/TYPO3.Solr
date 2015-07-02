@@ -66,7 +66,7 @@ class Tx_Solr_JavascriptManager {
 	 *
 	 */
 	public function __construct() {
-		$this->configuration = Tx_Solr_Util::getSolrConfiguration();
+		$this->configuration = \Tx_Solr_Util::getSolrConfiguration();
 	}
 
 	/**
@@ -97,7 +97,7 @@ class Tx_Solr_JavascriptManager {
 			if (!empty($fileReference)) {
 				self::$files[$fileKey] = array(
 					'addedToPage' => FALSE,
-					'file'        => t3lib_div::createVersionNumberedFilename($GLOBALS['TSFE']->tmpl->getFileName($fileReference))
+					'file'        => \TYPO3\CMS\Core\Utility\GeneralUtility::createVersionNumberedFilename($GLOBALS['TSFE']->tmpl->getFileName($fileReference))
 				);
 			}
 		}
@@ -162,7 +162,7 @@ class Tx_Solr_JavascriptManager {
 	 * @param array Array of parameters - not used
 	 * @param tslib_fe TYPO3 Frontend
 	 */
-	public function addJavascriptToPageFooter($parameters, tslib_fe $parentObject) {
+	public function addJavascriptToPageFooter($parameters, \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController $parentObject) {
 		$this->buildJavascriptTags();
 
 		$parentObject->content = str_replace(

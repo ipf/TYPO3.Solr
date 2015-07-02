@@ -70,7 +70,7 @@ class IndexQueueModuleController extends AbstractModuleController {
 	public function initializeIndexQueueAction() {
 		$initializedIndexingConfigurations = array();
 
-		$itemIndexQueue                     = GeneralUtility::makeInstance('Tx_Solr_IndexQueue_Queue');
+		$itemIndexQueue                     = GeneralUtility::makeInstance(\Tx_Solr_IndexQueue_Queue::class);
 		$indexingConfigurationsToInitialize = GeneralUtility::_POST('tx_solr-index-queue-initialization');
 		if (!empty($indexingConfigurationsToInitialize)) {
 				// initialize selected indexing configuration
@@ -124,7 +124,7 @@ class IndexQueueModuleController extends AbstractModuleController {
 	 * @return void
 	 */
 	public function clearIndexQueueAction() {
-		$indexQueue = GeneralUtility::makeInstance('Tx_Solr_IndexQueue_Queue');
+		$indexQueue = GeneralUtility::makeInstance(\Tx_Solr_IndexQueue_Queue::class);
 		$indexQueue->deleteItemsBySite($this->site);
 
 		$this->forward('index');
@@ -168,7 +168,7 @@ class IndexQueueModuleController extends AbstractModuleController {
 	 *  @return string Markup for the select field
 	 */
 	protected function getIndexQueueInitializationSelector() {
-		$selector = GeneralUtility::makeInstance('Tx_Solr_Backend_IndexingConfigurationSelectorField', $this->site);
+		$selector = GeneralUtility::makeInstance(\Tx_Solr_Backend_IndexingConfigurationSelectorField::class, $this->site);
 		$selector->setFormElementName('tx_solr-index-queue-initialization');
 
 		return $selector->render();

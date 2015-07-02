@@ -33,7 +33,7 @@
  * @package TYPO3
  * @subpackage solr
  */
-class Tx_Solr_Scheduler_ReIndexTask extends tx_scheduler_Task {
+class Tx_Solr_Scheduler_ReIndexTask extends \TYPO3\CMS\Scheduler\Task\AbstractTask {
 
 	/**
 	 * The site this task is supposed to initialize the index queue for.
@@ -61,7 +61,7 @@ class Tx_Solr_Scheduler_ReIndexTask extends tx_scheduler_Task {
 		$cleanUpResult = $this->cleanUpIndex();
 
 			// initialize for re-indexing
-		$indexQueue = t3lib_div::makeInstance('Tx_Solr_IndexQueue_Queue');
+		$indexQueue = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\Tx_Solr_IndexQueue_Queue::class);
 		$indexQueueInitializationResults = array();
 		foreach ($this->indexingConfigurationsToReIndex as $indexingConfigurationName) {
 			$indexQueueInitializationResults = $indexQueue->initialize($this->site, $indexingConfigurationName);
@@ -78,7 +78,7 @@ class Tx_Solr_Scheduler_ReIndexTask extends tx_scheduler_Task {
 	protected function cleanUpIndex() {
 		$cleanUpResult     = TRUE;
 		$solrConfiguration = $this->site->getSolrConfiguration();
-		$solrServers       = t3lib_div::makeInstance('Tx_Solr_ConnectionManager')->getConnectionsBySite($this->site);
+		$solrServers       = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\Tx_Solr_ConnectionManager::class)->getConnectionsBySite($this->site);
 		$typesToCleanUp    = array();
 
 		foreach ($this->indexingConfigurationsToReIndex as $indexingConfigurationName) {

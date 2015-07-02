@@ -37,9 +37,9 @@ if (version_compare(TYPO3_version, '6.1', '<=')) {
  * @package TYPO3
  * @subpackage solr
  */
-class Tx_Solr_ConnectionManager implements t3lib_Singleton, backend_cacheActionsHook {
+class Tx_Solr_ConnectionManager implements \TYPO3\CMS\Core\SingletonInterface, \TYPO3\CMS\Backend\Toolbar\ClearCacheActionsHookInterface {
 
-		// TODO add parametrized singleton capabilities to t3lib_div::makeInstance()
+		// TODO add parametrized singleton capabilities to \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance()
 
 	/**
 	 * @var array
@@ -63,7 +63,7 @@ class Tx_Solr_ConnectionManager implements t3lib_Singleton, backend_cacheActions
 		$connection = NULL;
 
 		if (empty($host)) {
-			t3lib_div::devLog(
+			\TYPO3\CMS\Core\Utility\GeneralUtility::devLog(
 				'Tx_Solr_ConnectionManager::getConnection() called with empty
 				host parameter. Using configuration from TSFE, might be
 				inaccurate. Always provide a host or use the getConnectionBy*
@@ -83,7 +83,7 @@ class Tx_Solr_ConnectionManager implements t3lib_Singleton, backend_cacheActions
 		$connectionHash = md5($scheme . '://' . $host . $port . $path);
 
 		if (!isset(self::$connections[$connectionHash])) {
-			$connection = t3lib_div::makeInstance(
+			$connection = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
 				'Tx_Solr_SolrService',
 				$host,
 				$port,
@@ -109,8 +109,9 @@ class Tx_Solr_ConnectionManager implements t3lib_Singleton, backend_cacheActions
 	public function getConfigurationByPageId($pageId, $language = 0, $mount = '') {
 		$solrConfiguration = array();
 
-			// find the root page
-		$pageSelect     = t3lib_div::makeInstance('t3lib_pageSelect');
+		// find the root page
+		/** @var \TYPO3\CMS\Frontend\Page\PageRepository $pageSelect */
+		$pageSelect     = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Page\PageRepository::class);
 		$rootLine       = $pageSelect->getRootLine($pageId, $mount);
 		$siteRootPageId = $this->getSiteRootPageIdFromRootLine($rootLine);
 
@@ -118,7 +119,7 @@ class Tx_Solr_ConnectionManager implements t3lib_Singleton, backend_cacheActions
 			$solrConfiguration = $this->getConfigurationByRootPageId($siteRootPageId, $language);
 		} catch (Tx_Solr_NoSolrConnectionFoundException $nscfe) {
 			/* @var $noSolrConnectionException Tx_Solr_NoSolrConnectionFoundException */
-			$noSolrConnectionException = t3lib_div::makeInstance(
+			$noSolrConnectionException = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
 				'Tx_Solr_NoSolrConnectionFoundException',
 				$nscfe->getMessage() . ' Initial page used was [' . $pageId . ']',
 				1275399922
@@ -165,15 +166,15 @@ class Tx_Solr_ConnectionManager implements t3lib_Singleton, backend_cacheActions
 	public function getConfigurationByRootPageId($pageId, $language = 0) {
 		$solrConfiguration = FALSE;
 		$connectionKey     = $pageId . '|' . $language;
-
-		$registry = t3lib_div::makeInstance('t3lib_Registry');
+		/** @var \TYPO3\CMS\Core\Registry $registry */
+		$registry = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Registry::class);
 		$solrServers = $registry->get('tx_solr', 'servers');
 
 		if (isset($solrServers[$connectionKey])) {
 			$solrConfiguration = $solrServers[$connectionKey];
 		} else {
 			/* @var $noSolrConnectionException Tx_Solr_NoSolrConnectionFoundException */
-			$noSolrConnectionException = t3lib_div::makeInstance(
+			$noSolrConnectionException = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
 				'Tx_Solr_NoSolrConnectionFoundException',
 				'Could not find a Solr connection for root page ['
 					. $pageId . '] and language [' . $language . '].',
@@ -216,7 +217,8 @@ class Tx_Solr_ConnectionManager implements t3lib_Singleton, backend_cacheActions
 	 * @return array An array of connection configurations.
 	 */
 	public function getAllConfigurations() {
-		$registry = t3lib_div::makeInstance('t3lib_Registry');
+		/** @var \TYPO3\CMS\Core\Registry $registry */
+		$registry = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Registry::class);
 		$solrConfigurations = $registry->get('tx_solr', 'servers', array());
 
 		return $solrConfigurations;
@@ -296,13 +298,14 @@ class Tx_Solr_ConnectionManager implements t3lib_Singleton, backend_cacheActions
 	 */
 	public function manipulateCacheActions(&$cacheActions, &$optionValues) {
 		if ($GLOBALS['BE_USER']->isAdmin()) {
-			$title = 'Initialize Solr connections';
 
+			$title = 'Initialize Solr connections';
+			$backendUser = $GLOBALS['BE_USER'];
 			$cacheActions[] = array(
 				'id'    => 'clearSolrConnectionCache',
 				'title' => $title,
-				'href'  => $GLOBALS['BACK_PATH'] . 'ajax.php?ajaxID=solr::clearSolrConnectionCache',
-				'icon'  => '<img '.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], t3lib_extMgm::extRelPath('solr') . 'Resources/Images/cache-init-solr-connections.png', 'width="16" height="16"').' title="'.$title.'" alt="'.$title.'" />'
+				'href' => \TYPO3\CMS\Backend\Utility\BackendUtility::getModuleUrl('tce_db', ['vC' => $backendUser->veriCode(), 'cacheCmd' => 'solr::clearSolrConnectionCache', 'ajaxCall' => 1]) . \TYPO3\CMS\Backend\Utility\BackendUtility::getUrlToken('tceAction'),
+				'icon'  => '<img '.\TYPO3\CMS\Backend\Utility\IconUtility::skinImg($GLOBALS['BACK_PATH'], \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extRelPath('solr') . 'Resources/Images/cache-init-solr-connections.png', 'width="16" height="16"').' title="'.$title.'" alt="'.$title.'" />'
 			);
 			$optionValues[] = 'clearSolrConnectionCache';
 		}
@@ -312,12 +315,13 @@ class Tx_Solr_ConnectionManager implements t3lib_Singleton, backend_cacheActions
 	 * Updates the connections in the registry.
 	 *
 	 */
-	public function updateConnections() {
+	public function updateConnections($params = array(), \TYPO3\CMS\Core\Http\AjaxRequestHandler &$ajaxObj = NULL) {
 		$solrConnections = $this->getConfiguredSolrConnections();
 		$solrConnections = $this->filterDuplicateConnections($solrConnections);
 
 		if (!empty($solrConnections)) {
-			$registry = t3lib_div::makeInstance('t3lib_Registry');
+			/** @var \TYPO3\CMS\Core\Registry $registry */
+			$registry = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Registry::class);
 			$registry->set('tx_solr', 'servers', $solrConnections);
 		}
 	}
@@ -329,7 +333,7 @@ class Tx_Solr_ConnectionManager implements t3lib_Singleton, backend_cacheActions
 	 */
 	public function updateConnectionByRootPageId($rootPageId) {
 		$systemLanguages = $this->getSystemLanguages();
-		$rootPage        = t3lib_div::makeInstance('Tx_Solr_Site', $rootPageId)->getRootPage();
+		$rootPage        = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\Tx_Solr_Site::class, $rootPageId)->getRootPage();
 
 		$updatedSolrConnections = array();
 		foreach ($systemLanguages as $languageId) {
@@ -340,7 +344,8 @@ class Tx_Solr_ConnectionManager implements t3lib_Singleton, backend_cacheActions
 			}
 		}
 
-		$registry = t3lib_div::makeInstance('t3lib_Registry');
+		/** @var \TYPO3\CMS\Core\Registry $registry */
+		$registry = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Registry::class);
 		$solrConnections = $registry->get('tx_solr', 'servers', array());
 
 		$solrConnections = array_merge($solrConnections, $updatedSolrConnections);
@@ -389,13 +394,14 @@ class Tx_Solr_ConnectionManager implements t3lib_Singleton, backend_cacheActions
 		$connection = array();
 
 		$languageId = intval($languageId);
-		t3lib_div::_GETset($languageId, 'L');
+		\TYPO3\CMS\Core\Utility\GeneralUtility::_GETset($languageId, 'L');
 		$connectionKey = $rootPage['uid'] . '|' . $languageId;
 
-		$pageSelect = t3lib_div::makeInstance('t3lib_pageSelect');
+		/** @var \TYPO3\CMS\Frontend\Page\PageRepository $pageSelect */
+		$pageSelect     = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Page\PageRepository::class);
 		$rootLine   = $pageSelect->getRootLine($rootPage['uid']);
 
-		$tmpl = t3lib_div::makeInstance('t3lib_tsparser_ext');
+		$tmpl = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\TypoScript\ExtendedTemplateService::class);
 		$tmpl->tt_track = FALSE; // Do not log time-performance information
 		$tmpl->init();
 		$tmpl->runThroughTemplates($rootLine); // This generates the constants/config + hierarchy info for the template.
@@ -551,7 +557,7 @@ class Tx_Solr_ConnectionManager implements t3lib_Singleton, backend_cacheActions
 	 * Finds the page Id of the page marked as "Is site root" even if it's not
 	 * on the root level (pid = 0).
 	 *
-	 * @param array $rootLine A root line as generated by t3lib_pageSelect::getRootLine()
+	 * @param array $rootLine A root line as generated by \t3lib_pageSelect::getRootLine()
 	 * @return integer The site root's page Id
 	 */
 	protected function getSiteRootPageIdFromRootLine(array $rootLine) {

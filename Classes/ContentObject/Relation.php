@@ -106,17 +106,13 @@ class Tx_Solr_ContentObject_Relation {
 	 * @param tslib_cObj $parentContentObject parent content object
 	 * @return array Array of related items, values already resolved from related records
 	 */
-	protected function getRelatedItems(tslib_cObj $parentContentObject) {
+	protected function getRelatedItems(\TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer $parentContentObject) {
 		$relatedItems = array();
 
 		list($localTableName, $localRecordUid) = explode(':', $parentContentObject->currentRecord);
 
 		$GLOBALS['TSFE']->includeTCA();
-		if (version_compare(TYPO3_version, '6.0.0', '>=')) {
-			\TYPO3\CMS\Core\Utility\GeneralUtility::loadTCA($localTableName);
-		} else {
-			t3lib_div::loadTCA($localTableName);
-		}
+
 		$localTableTca  = $GLOBALS['TCA'][$localTableName];
 
 		$localFieldName = $this->configuration['localField'];
@@ -142,11 +138,11 @@ class Tx_Solr_ContentObject_Relation {
 	 * @param tslib_cObj $parentContentObject parent content object
 	 * @return array Array of related items, values already resolved from related records
 	 */
-	protected function getRelatedItemsFromForeignTable($localFieldName, $localRecordUid, array $localFieldTca, tslib_cObj $parentContentObject) {
+	protected function getRelatedItemsFromForeignTable($localFieldName, $localRecordUid, array $localFieldTca, \TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer $parentContentObject) {
 		$relatedItems = array();
 
 		$foreignTableName = $localFieldTca['config']['foreign_table'];
-		t3lib_div::loadTCA($foreignTableName);
+		\TYPO3\CMS\Core\Utility\GeneralUtility::loadTCA($foreignTableName);
 
 		$foreignTableTca  = $GLOBALS['TCA'][$foreignTableName];
 
@@ -158,7 +154,7 @@ class Tx_Solr_ContentObject_Relation {
 
 			$whereClause = $foreignTableName . '.' . $foreignTableField . ' = ' . (int) $localRecordUid;
 		} else {
-			$foreignTableUids = t3lib_div::intExplode(',', $parentContentObject->data[$localFieldName]);
+			$foreignTableUids = \TYPO3\CMS\Core\Utility\GeneralUtility::intExplode(',', $parentContentObject->data[$localFieldName]);
 
 			if (count($foreignTableUids) > 1) {
 				$whereClause = $foreignTableName . '.uid IN (' . implode(',', $foreignTableUids) . ')';
@@ -166,7 +162,8 @@ class Tx_Solr_ContentObject_Relation {
 				$whereClause = $foreignTableName . '.uid = ' . (int) array_shift($foreignTableUids);
 			}
 		}
-		$pageSelector = t3lib_div::makeInstance('t3lib_pageSelect');
+		/** @var \TYPO3\CMS\Frontend\Page\PageRepository $pageSelect */
+		$pageSelector = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Page\PageRepository::class);
 		$whereClause .= $pageSelector->enableFields( $foreignTableName );
 
 		$relatedRecordsResource = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
@@ -207,7 +204,7 @@ class Tx_Solr_ContentObject_Relation {
 	 *
 	 * @return string
 	 */
-	protected function resolveRelatedValue(array $relatedRecord, $foreignTableTca, $foreignTableLabelField, tslib_cObj $parentContentObject, $foreignTableName = '') {
+	protected function resolveRelatedValue(array $relatedRecord, $foreignTableTca, $foreignTableLabelField, \TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer $parentContentObject, $foreignTableName = '') {
 
 		if ($GLOBALS['TSFE']->sys_language_uid > 0 && !empty($foreignTableName)) {
 			$relatedRecord = $this->getTranslationOverlay($foreignTableName, $relatedRecord);
@@ -264,12 +261,12 @@ class Tx_Solr_ContentObject_Relation {
 		}
 
 		$foreignTableName = $localFieldTca['config']['foreign_table'];
-		t3lib_div::loadTCA($foreignTableName);
+
 		$foreignTableTca  = $GLOBALS['TCA'][$foreignTableName];
 
 		$foreignTableLabelField = $this->resolveForeignTableLabelField($foreignTableTca);
 
-		$relationHandler = t3lib_div::makeInstance('t3lib_loadDBGroup');
+		$relationHandler = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Database\RelationHandler::class);
 		$relationHandler->start('', $foreignTableName, $mmTableName, $localRecordUid, $localTableName, $localFieldTca['config']);
 
 		$selectUids = $relationHandler->tableArray[$foreignTableName];
@@ -278,7 +275,7 @@ class Tx_Solr_ContentObject_Relation {
 				'uid, pid, ' .$foreignTableLabelField,
 				$foreignTableName,
 				'uid IN (' . implode(',', $selectUids) . ')'
-					. t3lib_BEfunc::deleteClause($foreignTableName)
+					. \TYPO3\CMS\Backend\Utility\BackendUtility::deleteClause($foreignTableName)
 			);
 			foreach ($relatedRecords as $record) {
 				if ($GLOBALS['TSFE']->sys_language_uid > 0) {

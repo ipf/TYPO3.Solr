@@ -55,7 +55,7 @@ class Tx_Solr_IndexQueue_RecordMonitor {
 	 *
 	 */
 	public function __construct() {
-		$this->indexQueue = t3lib_div::makeInstance('Tx_Solr_IndexQueue_Queue');
+		$this->indexQueue = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\Tx_Solr_IndexQueue_Queue::class);
 	}
 
 	/**
@@ -67,7 +67,7 @@ class Tx_Solr_IndexQueue_RecordMonitor {
 	 * @param	string
 	 * @param t3lib_TCEmain TYPO3 Core Engine parent object
 	 */
-	public function processCmdmap_preProcess($command, $table, $uid, $value, t3lib_TCEmain $tceMain) {
+	public function processCmdmap_preProcess($command, $table, $uid, $value, \TYPO3\CMS\Core\DataHandling\DataHandler $tceMain) {
 		if ($command == 'delete' && $table == 'tt_content' && $GLOBALS['BE_USER']->workspace == 0) {
 				// skip workspaces: index only LIVE workspace
 			$this->indexQueue->updateItem('pages', $tceMain->getPID($table, $uid));
@@ -84,7 +84,7 @@ class Tx_Solr_IndexQueue_RecordMonitor {
 	 * @param	string
 	 * @param t3lib_TCEmain TYPO3 Core Engine parent object
 	 */
-	public function processCmdmap_postProcess($command, $table, $uid, $value, t3lib_TCEmain $tceMain) {
+	public function processCmdmap_postProcess($command, $table, $uid, $value, \TYPO3\CMS\Core\DataHandling\DataHandler $tceMain) {
 		if (Tx_Solr_Util::isDraftRecord($table, $uid)) {
 				// skip workspaces: index only LIVE workspace
 			return;
@@ -248,7 +248,7 @@ class Tx_Solr_IndexQueue_RecordMonitor {
 	 * @param int $recordUid Id of record
 	 */
 	protected function removeFromIndexAndQueue($recordTable, $recordUid) {
-		$garbageCollector = t3lib_div::makeInstance('Tx_Solr_GarbageCollector');
+		$garbageCollector = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\Tx_Solr_GarbageCollector::class);
 		$garbageCollector->collectGarbage($recordTable, $recordUid);
 	}
 
@@ -274,7 +274,7 @@ class Tx_Solr_IndexQueue_RecordMonitor {
 
 			if ($tableToIndex === $recordTable) {
 				$recordWhereClause = $this->buildUserWhereClause($indexingConfigurationName);
-				$record = t3lib_BEfunc::getRecord($recordTable, $recordUid, '*', $recordWhereClause);
+				$record = \TYPO3\CMS\Backend\Utility\BackendUtility::getRecord($recordTable, $recordUid, '*', $recordWhereClause);
 
 				if (!empty($record)) {
 						// if we found a record which matches the conditions, we can continue
@@ -316,7 +316,7 @@ class Tx_Solr_IndexQueue_RecordMonitor {
 			// FIXME!! $pageId might be outside of a site root and thus might not know about solr configuration
 			// -> leads to record not being queued for reindexing
 		$solrConfiguration = Tx_Solr_Util::getSolrConfigurationFromPageId($pageId);
-		$indexingConfigurations = t3lib_div::makeInstance('Tx_Solr_IndexQueue_Queue')
+		$indexingConfigurations = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\Tx_Solr_IndexQueue_Queue::class)
 			->getTableIndexingConfigurations($solrConfiguration);
 
 		foreach ($indexingConfigurations as $indexingConfigurationName) {
@@ -352,7 +352,7 @@ class Tx_Solr_IndexQueue_RecordMonitor {
 			'uid',
 			'pages',
 			'content_from_pid = ' . $pageId
-				. t3lib_BEfunc::deleteClause('pages')
+				. \TYPO3\CMS\Backend\Utility\BackendUtility::deleteClause('pages')
 		);
 
 		foreach ($canonicalPages as $page) {
@@ -372,8 +372,9 @@ class Tx_Solr_IndexQueue_RecordMonitor {
 	 */
 	protected function updateMountPages($pageId) {
 
-			// get the root line of the page, every parent page could be a Mount Page source
-		$pageSelect = t3lib_div::makeInstance('t3lib_pageSelect');
+		// get the root line of the page, every parent page could be a Mount Page source
+		/** @var \TYPO3\CMS\Frontend\Page\PageRepository $pageSelect */
+		$pageSelect = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Page\PageRepository::class);
 		$rootLine   = $pageSelect->getRootLine($pageId);
 
 			// remove the current page / newly created page
@@ -411,7 +412,7 @@ class Tx_Solr_IndexQueue_RecordMonitor {
 				'uid, uid AS mountPageDestination, mount_pid AS mountPageSource, mount_pid_ol AS mountPageOverlayed',
 				'pages',
 				'doktype = 7 AND no_search = 0 AND mount_pid IN(' . implode(',', $pageIds) . ')'
-					. t3lib_BEfunc::deleteClause('pages')
+					. \TYPO3\CMS\Backend\Utility\BackendUtility::deleteClause('pages')
 			);
 		}
 
@@ -427,7 +428,7 @@ class Tx_Solr_IndexQueue_RecordMonitor {
 	protected function addPageToMountingSiteIndexQueue($mountedPageId, array $mountProperties) {
 		$mountingSite = Tx_Solr_Site::getSiteByPageId($mountProperties['mountPageDestination']);
 
-		$pageInitializer = t3lib_div::makeInstance('Tx_Solr_IndexQueue_Initializer_Page');
+		$pageInitializer = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\Tx_Solr_IndexQueue_Initializer_Page::class);
 		$pageInitializer->setSite($mountingSite);
 
 		$pageInitializer->initializeMountedPage($mountProperties, $mountedPageId);
@@ -488,7 +489,7 @@ class Tx_Solr_IndexQueue_RecordMonitor {
 
 			if ($tableToIndex === $recordTable) {
 				$recordWhereClause = $this->buildUserWhereClause($indexingConfigurationName);
-				$record = t3lib_BEfunc::getRecord($recordTable, $recordUid, '*', $recordWhereClause);
+				$record = \TYPO3\CMS\Backend\Utility\BackendUtility::getRecord($recordTable, $recordUid, '*', $recordWhereClause);
 
 				if (!empty($record)) {
 					// we found a record which matches the conditions

@@ -1,26 +1,26 @@
 <?php
 /***************************************************************
-*  Copyright notice
-*
-*  (c) 2012-2015 Ingo Renner <ingo@typo3.org>
-*  All rights reserved
-*
-*  This script is part of the TYPO3 project. The TYPO3 project is
-*  free software; you can redistribute it and/or modify
-*  it under the terms of the GNU General Public License as published by
-*  the Free Software Foundation; either version 2 of the License, or
-*  (at your option) any later version.
-*
-*  The GNU General Public License can be found at
-*  http://www.gnu.org/copyleft/gpl.html.
-*
-*  This script is distributed in the hope that it will be useful,
-*  but WITHOUT ANY WARRANTY; without even the implied warranty of
-*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*  GNU General Public License for more details.
-*
-*  This copyright notice MUST APPEAR in all copies of the script!
-***************************************************************/
+ *  Copyright notice
+ *
+ *  (c) 2012-2015 Ingo Renner <ingo@typo3.org>
+ *  All rights reserved
+ *
+ *  This script is part of the TYPO3 project. The TYPO3 project is
+ *  free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  The GNU General Public License can be found at
+ *  http://www.gnu.org/copyleft/gpl.html.
+ *
+ *  This script is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  This copyright notice MUST APPEAR in all copies of the script!
+ ***************************************************************/
 
 
 /**
@@ -31,7 +31,7 @@
  * @package TYPO3
  * @subpackage solr
  */
-class Tx_Solr_Report_FilterVarStatus implements tx_reports_StatusProvider {
+class Tx_Solr_Report_FilterVarStatus implements \TYPO3\CMS\Reports\StatusProviderInterface {
 
 	/**
 	 * Checks whether allow_url_fopen is enabled.
@@ -39,7 +39,7 @@ class Tx_Solr_Report_FilterVarStatus implements tx_reports_StatusProvider {
 	 * @see typo3/sysext/reports/interfaces/tx_reports_StatusProvider::getStatus()
 	 */
 	public function getStatus() {
-		$reports  = array();
+		$reports = array();
 
 		$validUrl = 'http://www.typo3-solr.com';
 		if (!filter_var($validUrl, FILTER_VALIDATE_URL)) {
@@ -52,11 +52,11 @@ class Tx_Solr_Report_FilterVarStatus implements tx_reports_StatusProvider {
 				More information is available at
 				<a href="https://bugs.php.net/bug.php?id=51192">php.net</a>.';
 
-			$reports[] = t3lib_div::makeInstance('tx_reports_reports_status_Status',
+			$reports[] = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Reports\Status::class,
 				'PHP filter_var() bug',
 				'Affected PHP version detected.',
 				$message,
-				tx_reports_reports_status_Status::ERROR
+				\TYPO3\CMS\Reports\Status::ERROR
 			);
 		}
 
@@ -65,7 +65,7 @@ class Tx_Solr_Report_FilterVarStatus implements tx_reports_StatusProvider {
 }
 
 
-if (defined('TYPO3_MODE') && $GLOBALS['TYPO3_CONF_VARS'][TYPO3_MODE]['XCLASS']['ext/solr/Report/FilterVarStatus.php'])	{
+if (defined('TYPO3_MODE') && $GLOBALS['TYPO3_CONF_VARS'][TYPO3_MODE]['XCLASS']['ext/solr/Report/FilterVarStatus.php']) {
 	include_once($GLOBALS['TYPO3_CONF_VARS'][TYPO3_MODE]['XCLASS']['ext/solr/Report/FilterVarStatus.php']);
 }
 

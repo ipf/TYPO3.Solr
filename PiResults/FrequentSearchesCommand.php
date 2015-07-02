@@ -72,12 +72,12 @@ class Tx_Solr_PiResults_FrequentSearchesCommand implements Tx_Solr_PluginCommand
 	 * @return void
 	 */
 	protected function initializeCache() {
-		t3lib_cache::initializeCachingFramework();
+		\TYPO3\CMS\Core\Cache\Cache::initializeCachingFramework();
 
 		try {
-			$this->cacheInstance = $GLOBALS['typo3CacheManager']->getCache('tx_solr');
-		} catch (t3lib_cache_exception_NoSuchCache $e) {
-			$this->cacheInstance = $GLOBALS['typo3CacheFactory']->create(
+			$this->cacheInstance = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Cache\\CacheManager')->getCache('tx_solr');
+		} catch (\TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException $e) {
+			$this->cacheInstance = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Cache\\CacheManager')->create(
 				'tx_solr',
 				$GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['tx_solr']['frontend'],
 				$GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['tx_solr']['backend'],
@@ -107,7 +107,7 @@ class Tx_Solr_PiResults_FrequentSearchesCommand implements Tx_Solr_PluginCommand
 	/**
 	 * Builds the properties for the frequent search term markers.
 	 *
-	 * @param array Frequent search terms as array with terms as keys and hits as the value
+	 * @param array $frequentSearchTerms Frequent search terms as array with terms as keys and hits as the value
 	 * @return array An array with content for the frequent terms markers
 	 */
 	protected function getSearchTermMarkerProperties(array $frequentSearchTerms) {
@@ -142,7 +142,7 @@ class Tx_Solr_PiResults_FrequentSearchesCommand implements Tx_Solr_PluginCommand
 	/**
 	 * Generates an array with terms and hits
 	 *
-	 * @return Tags as array with terms and hits
+	 * @return array Tags as array with terms and hits
 	 */
 	protected function getFrequentSearchTerms() {
 		$terms = array();

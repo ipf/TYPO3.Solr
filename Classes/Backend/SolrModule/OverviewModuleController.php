@@ -61,7 +61,7 @@ class OverviewModuleController extends AbstractModuleController {
 	protected function initializeAction() {
 		parent::initializeAction();
 
-		$connectionManager = GeneralUtility::makeInstance('Tx_Solr_ConnectionManager');
+		$connectionManager = GeneralUtility::makeInstance(\Tx_Solr_ConnectionManager::class);
 		$this->connections = $connectionManager->getConnectionsBySite($this->site);
 	}
 

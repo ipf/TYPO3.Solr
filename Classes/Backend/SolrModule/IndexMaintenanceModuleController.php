@@ -65,7 +65,7 @@ class IndexMaintenanceModuleController extends AbstractModuleController {
 	 * @return void
 	 */
 	public function cleanUpIndexAction() {
-		$garbageCollector = GeneralUtility::makeInstance('Tx_Solr_GarbageCollector');
+		$garbageCollector = GeneralUtility::makeInstance(\Tx_Solr_GarbageCollector::class);
 		$garbageCollector->cleanIndex($this->site);
 
 		$this->addFlashMessage(

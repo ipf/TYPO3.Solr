@@ -66,7 +66,7 @@ class CoreSelectorMenuViewHelper extends AbstractTagBasedViewHelper {
 		$currentSite = $this->moduleDataStorageService->loadModuleData()->getSite();
 		$currentCore = $this->moduleDataStorageService->loadModuleData()->getCore();
 
-		$connectionManager = GeneralUtility::makeInstance('Tx_Solr_ConnectionManager');
+		$connectionManager = GeneralUtility::makeInstance(\Tx_Solr_ConnectionManager::class);
 		$cores = $connectionManager->getConnectionsBySite($currentSite);
 
 		if (empty($currentCore)) {

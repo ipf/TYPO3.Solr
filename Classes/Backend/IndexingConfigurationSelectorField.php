@@ -59,7 +59,7 @@ class Tx_Solr_Backend_IndexingConfigurationSelectorField {
 	 *
 	 * @param Tx_Solr_Site $site The site to use to determine indexing configurations
 	 */
-	public function __construct(Tx_Solr_Site $site = NULL) {
+	public function __construct(\Tx_Solr_Site $site = NULL) {
 		$this->site = $site;
 	}
 
@@ -107,7 +107,8 @@ class Tx_Solr_Backend_IndexingConfigurationSelectorField {
 	 *  @return string Markup for the select field
 	 */
 	public function render() {
-		$tceForm = t3lib_div::makeInstance('t3lib_TCEforms');
+		/** @var \TYPO3\CMS\Backend\Form\FormEngine $tceForm */
+		$tceForm = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Backend\Form\Element\SelectCheckBoxElement::class);
 
 			// transform selected values into the format used by TCEforms
 		$selectedValues = array();
@@ -124,7 +125,7 @@ class Tx_Solr_Backend_IndexingConfigurationSelectorField {
 
 		$tablesToIndex = $this->getIndexQueueConfigurationTableMap();
 
-		$formField = $tceForm->getSingleField_typeSelect_checkbox(
+		$formField = $tceForm->getSingleField_Select_checkbox(
 			'', // table
 			'', // field
 			'', // row

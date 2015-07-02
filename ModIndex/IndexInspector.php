@@ -30,7 +30,7 @@
  * @package TYPO3
  * @subpackage solr
  */
-class Tx_Solr_ModIndex_IndexInspector extends t3lib_extobjbase {
+class Tx_Solr_ModIndex_IndexInspector extends \TYPO3\CMS\Backend\Module\AbstractFunctionModule {
 
 	/**
 	 * The parent Web -> Info module's template

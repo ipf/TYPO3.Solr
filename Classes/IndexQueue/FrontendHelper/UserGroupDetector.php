@@ -37,10 +37,10 @@ class Tx_Solr_IndexQueue_FrontendHelper_UserGroupDetector
 		Tx_Solr_IndexQueue_FrontendHelper_Abstract
 
 	implements
-		t3lib_Singleton,
-		tslib_content_PostInitHook,
-		t3lib_pageSelect_getPageHook,
-		t3lib_pageSelect_getPageOverlayHook {
+		\TYPO3\CMS\Core\SingletonInterface,
+		\TYPO3\CMS\Frontend\ContentObject\ContentObjectPostInitHookInterface,
+		\TYPO3\CMS\Frontend\Page\PageRepositoryGetPageHookInterface,
+		\TYPO3\CMS\Frontend\Page\PageRepositoryGetPageOverlayHookInterface {
 
 
 
@@ -119,7 +119,7 @@ class Tx_Solr_IndexQueue_FrontendHelper_UserGroupDetector
 	 *
 	 * @param integer The page ID
 	 * @param boolean If set, the check for group access is disabled. VERY rarely used
-	 * @param \TYPO3\CMS\Frontend\Page\PageRepository parent t3lib_pageSelect object
+	 * @param \TYPO3\CMS\Frontend\Page\PageRepository parent \t3lib_pageSelect object
 	 */
 	public function getPage_preProcess(&$uid, &$disableGroupAccessCheck, \TYPO3\CMS\Frontend\Page\PageRepository $parentObject) {
 		$disableGroupAccessCheck = TRUE;
@@ -130,9 +130,9 @@ class Tx_Solr_IndexQueue_FrontendHelper_UserGroupDetector
 	 * Modifies page records so that when checking for access through fe groups
 	 * no groups or extendToSubpages flag is found and thus access is granted.
 	 *
-	 * @param array Page record
-	 * @param integer Overlay language ID
-	 * @param \TYPO3\CMS\Frontend\Page\PageRepository Parent t3lib_pageSelect object
+	 * @param array $pageRecord Page record
+	 * @param integer $languageUid Overlay language ID
+	 * @param \TYPO3\CMS\Frontend\Page\PageRepository Parent \t3lib_pageSelect object
 	 */
 	public function getPageOverlay_preProcess(&$pageRecord, &$languageUid, \TYPO3\CMS\Frontend\Page\PageRepository $parentObject) {
 		if (is_array($pageRecord)) {
@@ -173,7 +173,7 @@ class Tx_Solr_IndexQueue_FrontendHelper_UserGroupDetector
 				$frontendGroups = 0;
 			} else {
 				if ($this->request->getParameter('loggingEnabled')) {
-					t3lib_div::devLog('Access restriction found', 'solr', 0, array(
+					\TYPO3\CMS\Core\Utility\GeneralUtility::devLog('Access restriction found', 'solr', 0, array(
 						'groups'      => $frontendGroups,
 						'record'      => $record,
 						'record type' => $table,
@@ -193,7 +193,7 @@ class Tx_Solr_IndexQueue_FrontendHelper_UserGroupDetector
 	 */
 	protected function getFrontendGroups() {
 		$frontendGroupsList = implode(',', $this->frontendGroups);
-		$frontendGroups     = t3lib_div::trimExplode(',', $frontendGroupsList, TRUE);
+		$frontendGroups     = \TYPO3\CMS\Core\Utility\GeneralUtility::trimExplode(',', $frontendGroupsList, TRUE);
 
 			// clean up: filter double groups
 		$frontendGroups = array_unique($frontendGroups);

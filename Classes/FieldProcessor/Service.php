@@ -67,23 +67,23 @@ class Tx_Solr_FieldProcessor_Service {
 
 				switch ($instruction) {
 					case 'timestampToUtcIsoDate':
-						$processor  = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('Tx_Solr_FieldProcessor_TimestampToUtcIsoDate');
+						$processor  = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\Tx_Solr_FieldProcessor_TimestampToUtcIsoDate::class);
 						$fieldValue = $processor->process($fieldValue);
 						break;
 					case 'timestampToIsoDate':
-						$processor  = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('Tx_Solr_FieldProcessor_TimestampToIsoDate');
+						$processor  = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\Tx_Solr_FieldProcessor_TimestampToIsoDate::class);
 						$fieldValue = $processor->process($fieldValue);
 						break;
 					case 'pathToHierarchy':
-						$processor  = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('Tx_Solr_FieldProcessor_PathToHierarchy');
+						$processor  = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\Tx_Solr_FieldProcessor_PathToHierarchy::class);
 						$fieldValue = $processor->process($fieldValue);
 						break;
 					case 'pageUidToHierarchy':
-						$processor  = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('Tx_Solr_FieldProcessor_PageUidToHierarchy');
+						$processor  = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\Tx_Solr_FieldProcessor_PageUidToHierarchy::class);
 						$fieldValue = $processor->process($fieldValue);
 						break;
 					case 'categoryUidToHierarchy':
-						$processor = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('Tx_Solr_FieldProcessor_CategoryUidToHierarchy');
+						$processor = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\Tx_Solr_FieldProcessor_CategoryUidToHierarchy::class);
 						$fieldValue = $processor->process($fieldValue);
 						break;
 					case 'uppercase':

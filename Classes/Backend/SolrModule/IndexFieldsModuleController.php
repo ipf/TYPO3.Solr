@@ -59,7 +59,7 @@ class IndexFieldsModuleController extends AbstractModuleController {
 		$solrConnection = $this->getSelectedCoreSolrConnection();
 		$lukeData       = $solrConnection->getLukeMetaData();
 
-		$registry = GeneralUtility::makeInstance('TYPO3\CMS\Core\Registry');
+		$registry = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Registry::class);
 		$limit    = $registry->get('tx_solr', 'luke.limit', 20000);
 
 		if (isset($lukeData->index->numDocs) && $lukeData->index->numDocs > $limit) {

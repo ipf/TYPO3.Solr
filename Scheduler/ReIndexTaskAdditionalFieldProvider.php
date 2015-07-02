@@ -32,7 +32,7 @@
  * @package TYPO3
  * @subpackage solr
  */
-class Tx_Solr_Scheduler_ReIndexTaskAdditionalFieldProvider implements tx_scheduler_AdditionalFieldProvider {
+class Tx_Solr_Scheduler_ReIndexTaskAdditionalFieldProvider implements \TYPO3\CMS\Scheduler\AdditionalFieldProviderInterface {
 
 	/**
 	 * Task information
@@ -63,7 +63,7 @@ class Tx_Solr_Scheduler_ReIndexTaskAdditionalFieldProvider implements tx_schedul
 	protected $site = NULL;
 
 
-	protected function initialize(array $taskInfo, tx_scheduler_Task $task = NULL, tx_scheduler_Module $schedulerModule) {
+	protected function initialize(array $taskInfo, \TYPO3\CMS\Scheduler\Task\AbstractTask $task = NULL, \TYPO3\CMS\Scheduler\Controller\SchedulerModuleController $schedulerModule) {
 		$this->taskInformation = $taskInfo;
 		$this->task            = $task;
 		$this->schedulerModule = $schedulerModule;
@@ -84,7 +84,7 @@ class Tx_Solr_Scheduler_ReIndexTaskAdditionalFieldProvider implements tx_schedul
 	 *									The array is multidimensional, keyed to the task class name and each field's id
 	 *									For each field it provides an associative sub-array with the following:
 	 */
-	public function getAdditionalFields(array &$taskInfo, $task, tx_scheduler_Module $schedulerModule) {
+	public function getAdditionalFields(array &$taskInfo, $task, \TYPO3\CMS\Scheduler\Controller\SchedulerModuleController $schedulerModule) {
 		$this->initialize($taskInfo, $task, $schedulerModule);
 
 		$additionalFields = array();
@@ -106,14 +106,17 @@ class Tx_Solr_Scheduler_ReIndexTaskAdditionalFieldProvider implements tx_schedul
 		return $additionalFields;
 	}
 
+	/**
+	 * @return string
+	 */
 	protected function getIndexingConfigurationSelector() {
 		$selectorMarkup = 'Please select a site first.';
 
 		$this->schedulerModule->doc->getPageRenderer()->addCssFile('../typo3conf/ext/solr/Resources/Css/Backend/indexingconfigurationselectorfield.css');
 
 		if (!is_null($this->site)) {
-			$selectorField = t3lib_div::makeInstance(
-				'Tx_Solr_Backend_IndexingConfigurationSelectorField',
+			$selectorField = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
+				\Tx_Solr_Backend_IndexingConfigurationSelectorField::class,
 				$this->site
 			);
 			$selectorField->setFormElementName('tx_scheduler[indexingConfigurations]');
@@ -133,7 +136,7 @@ class Tx_Solr_Scheduler_ReIndexTaskAdditionalFieldProvider implements tx_schedul
 	 * @param tx_scheduler_Module	 $parentObject: reference to the calling object (Scheduler's BE module)
 	 * @return boolean				 True if validation was ok (or selected class is not relevant), FALSE otherwise
 	 */
-	public function validateAdditionalFields(array &$submittedData, tx_scheduler_Module $schedulerModule) {
+	public function validateAdditionalFields(array &$submittedData, \TYPO3\CMS\Scheduler\Controller\SchedulerModuleController $schedulerModule) {
 		$result = FALSE;
 
 			// validate site
@@ -152,8 +155,8 @@ class Tx_Solr_Scheduler_ReIndexTaskAdditionalFieldProvider implements tx_schedul
 	 * @param array			 $submittedData: array containing the data submitted by the user
 	 * @param tx_scheduler_Task $task: reference to the current task object
 	 */
-	public function saveAdditionalFields(array $submittedData, tx_scheduler_Task $task) {
-		$task->setSite(t3lib_div::makeInstance('Tx_Solr_Site', $submittedData['site']));
+	public function saveAdditionalFields(array $submittedData, \TYPO3\CMS\Scheduler\Task\AbstractTask $task) {
+		$task->setSite(\TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\Tx_Solr_Site::class, $submittedData['site']));
 
 		$indexingConfigurations = array();
 		if (!empty($submittedData['indexingConfigurations'])) {

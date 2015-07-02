@@ -147,12 +147,12 @@ class AdministrationController extends ActionController {
 
 	/**
 	 * Call a sub-module's controller
-	 * 
+	 *
 	 */
 	protected function invokeModuleController() {
 		$activeModuleDescription = $this->moduleManager->getModuleDescription($this->activeModuleName);
 
-		$request = $this->objectManager->create('TYPO3\CMS\Extbase\Mvc\Web\Request');
+		$request = $this->objectManager->get('TYPO3\CMS\Extbase\Mvc\Web\Request');
 		/* @var \TYPO3\CMS\Extbase\Mvc\Web\Request $request */
 		$request->setControllerExtensionName(ucfirst($activeModuleDescription['extensionKey']));
 		$request->setControllerName($activeModuleDescription['controller'] . 'Module');
@@ -173,7 +173,7 @@ class AdministrationController extends ActionController {
 			$request->setArgument($argumentName, $argumentValue);
 		}
 
-		$response = $this->objectManager->create('TYPO3\CMS\Extbase\Mvc\Web\Response');
+		$response = $this->objectManager->get('TYPO3\CMS\Extbase\Mvc\Web\Response');
 		/* @var \TYPO3\CMS\Extbase\Mvc\Web\Response $response */
 
 		while (!$request->isDispatched()) {
